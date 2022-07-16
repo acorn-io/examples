@@ -1,0 +1,20 @@
+containers: {
+    app: {
+        build: {
+            context: "."
+        }
+
+        if args.dev {
+            build: target: "dev"
+            expose: "1313/http"
+            dirs: {
+                "/src": "./"
+            }
+        }
+    
+        if !args.dev {
+            build: target: "prod"
+            expose: "80/http"
+        }
+    }
+}
