@@ -1,0 +1,35 @@
+name: release-flask-example-acorn
+
+on:
+  push:
+    tags:
+      - "flask-v*"
+
+permissions:
+  repository-projects: read
+  packages: write
+  contents: read
+
+jobs:
+  push:
+    runs-on: buildjet-4vcpu-ubuntu-2004
+    steps:
+      - uses: actions/checkout@v3
+      - uses: acorn-io/actions-setup@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: acorn-io/actions-login@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set tag
+        run: echo "TAG=${GITHUB_REF#refs/*/flask-}" >> $GITHUB_ENV
+      - name: set image name
+        run: echo "ACORN_IMAGE=ghcr.io/acorn-io/docs-examples/flask"
+      - name: Build and push acorn
+        run: |
+          acorn build --platform linux/amd64 --platform linux/arm64 -t $ACORN_IMAGE:$TAG ./flask/
+          acorn tag $ACORN_IMAGE:$TAG $ACORN_IMAGE:latest
+          acorn push $ACORN_IMAGE:$TAG
+          acorn push $ACORN_IMAGE:latest
