@@ -1,0 +1,41 @@
+containers: {
+  app: {
+    build: "."
+    ports: publish: "5000/http"
+    dependsOn: [
+      "db",
+      "redis"
+    ]
+    env: {
+      "GREETING": "Hi Acorn"
+    }
+    if args.dev {
+      env: {"FLASK_DEBUG": "1"}
+      dirs: {
+        "/app": "./"
+      }
+    }
+  }
+  db: {
+    image: "postgres:alpine"
+    ports: "5432/tcp"
+    env: {
+      "POSTGRES_USER": "acorn-devspace"
+      "POSTGRES_PASSWORD": "acorn-devspace"
+      "POSTGRES_DB": "acorn-devspace"
+    }
+    files: {
+      "/docker-entrypoint-initdb.d/00-init.sql": "CREATE TABLE subscribers (email text);"
+    }
+  }
+  redis: {
+    image: "redis:alpine"
+    ports: "6379/tcp"
+  }
+}
+
+jobs: "process-subscriptions": {
+  build: "."
+  command: "rq worker --burst --url redis://redis:6379"
+  schedule: "@daily"
+}

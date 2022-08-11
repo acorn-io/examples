@@ -1,0 +1,23 @@
+containers: {
+  app: {
+    build: "."
+    ports: publish: "5000/http"
+    env: {
+      "GREETING": "Hi Acorn"
+    }
+    if args.dev {
+      env: {"FLASK_DEBUG": "1"}
+      dirs: {
+        "/app": "./"
+      }
+    }
+  }
+  db: {
+    image: "postgres:alpine"
+    ports: "5432/tcp"
+  }
+  redis: {
+    image: "redis:alpine"
+    ports: "6379/tcp"
+  }
+}

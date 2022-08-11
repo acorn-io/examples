@@ -1,0 +1,64 @@
+containers: {
+  app: {
+    build: "."
+    ports: publish: "5000/http"
+    dependsOn: [
+      "db",
+      "redis"
+    ]
+    env: {
+      "GREETING": "Hi Acorn",
+      "DB_PASSWORD": "secret://pg-creds/token"
+    }
+    if args.dev {
+      env: {"FLASK_DEBUG": "1"}
+      dirs: {
+        "/app": "./"
+      }
+    }
+    if !args.dev {
+      entrypoint: #"gunicorn -w 4 -b 0.0.0.0:5000 app.app:app"#
+    }
+  }
+  db: {
+    image: "postgres:alpine"
+    ports: "5432/tcp"
+    env: {
+      "POSTGRES_USER": "acorn-devspace"
+      "POSTGRES_PASSWORD": "secret://pg-creds/token"
+      "POSTGRES_DB": "acorn-devspace"
+    }
+    files: {
+      "/docker-entrypoint-initdb.d/00-init.sql": "CREATE TABLE subscribers (email text);"
+    }
+    if !args.dev {
+      dirs: {
+        "/var/lib/postgresql/data": "volume://pgdata"
+      }
+    }
+  }
+  redis: {
+    image: "redis:alpine"
+    ports: "6379/tcp"
+  }
+}
+
+secrets: {
+  "pg-creds": {
+    type: "token"
+  }
+}
+
+if !args.dev {
+  volumes: {
+    "pgdata": {
+      accessModes: "readWriteOnce"
+    }
+  }
+}
+
+jobs: "process-subscriptions": {
+  build: "."
+  command: "rq worker --burst --url redis://redis:6379"
+  schedule: "@daily"
+}
