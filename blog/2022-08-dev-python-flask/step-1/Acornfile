@@ -1,0 +1,13 @@
+containers: {
+  app: {
+    build: "."
+    ports: publish: "5000/http"
+    env: {
+      "GREETING": "Hello World"
+      "FLASK_DEBUG": "1"
+    }
+    dirs: {
+      "/app": "./"
+    }
+  }
+}
