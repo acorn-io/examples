@@ -1,0 +1,41 @@
+containers: {
+    wp: {
+        image: "wordpress:latest"
+        ports: publish: "80/http"
+        env: {
+            WORDPRESS_DB_HOST:     "mariadb"
+            WORDPRESS_DB_USER:     "secret://db-user/username"
+            WORDPRESS_DB_PASSWORD: "secret://db-user/password"
+            WORDPRESS_DB_NAME:     "wordpress"
+        }
+        dirs: {
+            "/var/www/html": "volume://wp"
+        }
+        if args.dev {
+            dirs: "/tmp/testing": "./"
+        }
+    }
+    mariadb: {
+        image: "mariadb:10.6.8-focal"
+        ports: "3306/tcp"
+        env: {
+            MARIADB_ROOT_PASSWORD: "secret://db-root-password/token"
+            MARIADB_USER:          "secret://db-user/username"
+            MARIADB_PASSWORD:      "secret://db-user/password"
+            MARIADB_DATABASE:      "wordpress"
+        }
+        dirs: {
+            "/var/lib/mysql": "volume://db"
+        }
+    }
+}
+
+volumes: {
+    wp: {}
+    db: {}
+}
+
+secrets: {
+    "db-root-password": type: "token"
+    "db-user": type: "basic"
+}
