@@ -31,7 +31,7 @@ containers: {
     }
     dirs: {
       if !args.dev {
-        "/var/lib/postgresql/data": "volume://pgdata"
+        "/var/lib/postgresql/data": "volume://pgdata?subpath=data"
       }
     }
     files: {
