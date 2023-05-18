@@ -1,0 +1,12 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: redis
+  annotations:
+    acorn.io/managed: "true"
+  namespace: {{ env.Getenv "ACORN_PROJECT" }}
+spec:
+  repo: {{ env.Getenv "REPO_URL" }}
+  chart: redis
+  targetNamespace: {{ env.Getenv "ACORN_NAMESPACE" }}
+  valuesContent: {{ env.Getenv "VALUES_YAML" | toYAML | indent 2 }}

@@ -1,0 +1,4 @@
+services: redis: {
+    container: "redis"
+    secrets: ["redis-password:redis-auth"]
+}

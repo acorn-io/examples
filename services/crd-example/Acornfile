@@ -1,0 +1,71 @@
+args: {
+    // The URL to get the redis helm chart
+    repoUrl: "https://charts.bitnami.com/bitnami"
+}
+
+services: {
+    redis: {
+        generated: job: "helm-deploy"
+    }
+}
+
+let values_yaml = std.toYAML(localData.redisConfig)
+
+jobs: "helm-deploy": {
+    build: context: "."
+    entrypoint: ["/acorn/scripts/render.sh"]
+    env: {
+        ACORN_NAME: "@{acorn.name}"
+        ACORN_NAMESPACE: "@{acorn.namespace}"
+        ACORN_PROJECT: "@{acorn.project}"
+        REPO_URL: "\(args.repoUrl)"
+        VALUES_YAML_FILE: "/acorn/manifests/config"
+    }
+    events: ["create", "update", "delete"]
+    files: {
+        "/acorn/manifests/config": "\(values_yaml)"
+    }
+    dirs: {
+        "/acorn/secrets/": "secret://redis-password"
+    }
+    permissions: {
+        rules: [{
+                apiGroups: ["helm.cattle.io"]
+                resources: [
+                    "helmcharts",
+                    "helmchartconfigs",
+                ]
+                verbs: [
+                    "get",
+                    "list",
+                    "watch",
+                    "create",
+                    "update",
+                    "patch",
+                    "delete",
+                ]
+        }] 
+    }
+}
+
+secrets: {
+    "redis-password": {
+        type: "token"
+    }
+    "redis-auth": {
+        type: "generated"
+        params: job: "helm-deploy"
+    }
+}
+
+localData: {
+    redisConfig: {
+        commonAnnotations: {
+          "acorn.io/managed": "true"
+        }
+        auth: {
+            existingSecret: "redis-password"
+            existingSecretPasswordKey: "token"
+        }
+    }
+}
