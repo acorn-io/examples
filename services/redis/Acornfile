@@ -1,0 +1,40 @@
+args: {
+    // Name of the redis service to create. (Default is "redis-0")
+    dbName: "redis-0"
+    // Plan of the redis service to create. (Default is "free-1")
+    plan: "free-1"
+}
+
+services: "redis-cloud-server": {
+    generated: job: "create-redis-cloud-server"
+}
+
+jobs: "create-redis-cloud-server": {
+    build: context: "."
+    env: {
+        EMAIL: "secret://aiven-account/email"
+        TOKEN: "secret://aiven-account/token"
+        PROJECT: "secret://aiven-account/project"
+        REDIS_DB_NAME: "@{acorn.name}-\(args.dbName)"
+        REDIS_PLAN: "\(args.plan)"
+    }
+    events: ["create", "update", "delete"]
+}
+
+secrets: {
+    "aiven-account": {
+        external: "aiven-account-info"
+        type: "opaque"
+        data: {
+            token: ""
+            project: ""
+            email: ""
+        }
+    }
+    "redis-password": {
+        type: "generated"
+        params:{
+            job: "create-redis-cloud-server"
+        }
+    }
+}

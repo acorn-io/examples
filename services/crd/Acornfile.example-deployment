@@ -1,0 +1,13 @@
+acorns: "echo-app": {
+    image: "index.docker.io/cloudnautique/echo-app:services"
+    links: ["service-redis.redis:redis"]
+    publish: "app:5000/http"
+    publishMode: "defined"
+    secrets: ["service-redis.redis-password:redis-password"]
+}
+
+services: "service-redis": {
+    build: {
+        context: "."
+    }
+}
