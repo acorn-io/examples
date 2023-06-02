@@ -1,5 +1,5 @@
 args: {
-    // The URL to get the redis helm chart
+    // The URL of the redis helm chart
     repoUrl: "https://charts.bitnami.com/bitnami"
 }
 

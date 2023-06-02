@@ -16,10 +16,13 @@ cat > /run/secrets/output<<EOF
 services: redis: {
     address: "redis-master.${ACORN_NAMESPACE}.svc.cluster.local"
     ports: "6379"
-    secrets: ["redis-auth"]
+    secrets: ["redis-password"]
+    data: {
+        "tls": ""
+    }
 }
-secrets: "redis-auth": {
-    type: "opaque"
+secrets: "redis-password": {
+    type: "token"
     data: token: "${password}"
 }
 EOF

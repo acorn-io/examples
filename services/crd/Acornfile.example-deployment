@@ -8,7 +8,6 @@ acorns: "echo-app": {
 
 services: "service-redis": {
     build: {
-        context: "./crd-example"
-        acornfile: "./crd-example/Acornfile"
+        context: "."
     }
 }

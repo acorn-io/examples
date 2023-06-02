@@ -1,0 +1,17 @@
+services: redis: {
+    build: {
+        context: "."
+    }
+}
+
+containers: "redis-cli": {
+    image: "redis:alpine"
+    entrypoint: ["sleep"]
+    command: ["3600"]
+    env: {
+        REDIS_HOST: "@{service.redis.address}"
+        REDIS_PORT: "@{service.redis.port.6379}"
+        REDISCLI_AUTH: "@{service.redis.secrets.redis-password.token}"
+        REDIS_TLS_REQUIRED: "@{service.redis.data.tls}"
+    }
+}
