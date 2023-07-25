@@ -1,0 +1,45 @@
+args: eula: "TRUE"
+containers: mc: {
+	image: "itzg/minecraft-server"
+	ports: publish: [
+		"25565:25565/tcp",
+	]
+	env: {
+		EULA:                 args.eula
+		MODE:                 "creative"
+		DIFFICULTY:           "peaceful"
+		ALLOW_NETHER:         "true"
+		GENERATE_STRUCTURES:  "true"
+		ENABLE_COMMAND_BLOCK: "true"
+		SPAWN_ANIMALS:        "true"
+		SPAWN_MONSTERS:       "true"
+		SPAWN_NPCS:           "true"
+		ALLOW_FLIGHT:         "TRUE"
+		VERSION:              "1.20"
+	}
+	dirs: "/data": "volume://mc-data"
+	probes: [{
+		type: "readiness"
+		exec: command: [
+			"/usr/local/bin/mc-monitor",
+			"status",
+			"--host",
+			"localhost",
+		]
+		initialDelaySeconds: 20
+		periodSeconds:       5
+		failureThreshold:    20
+	}, {
+		type: "liveness"
+		exec: command: [
+			"/usr/local/bin/mc-monitor",
+			"status",
+			"--host",
+			"localhost",
+		]
+		initialDelaySeconds: 120
+		periodSeconds:       60
+	}]
+}
+
+volumes: "mc-data": {}
