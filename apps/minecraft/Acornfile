@@ -1,21 +1,36 @@
-args: eula: "TRUE"
+args: {
+	// This must be TRUE to accept the EULA
+	eula: "TRUE"
+	// Mode: "creative or survival"
+	mode: *"creative" | "survival"
+	// Difficulty
+	difficulty: "peaceful"
+	// Allow Flight
+	allowFlight: *"TRUE" | "FALSE"
+	// Enable GeyserMC
+	geyser: false
+}
+
 containers: mc: {
 	image: "itzg/minecraft-server"
-	ports: publish: [
-		"25565:25565/tcp",
-	]
+	ports: publish: std.ifelse(args.geyser, [ "25565:25565/tcp", "19132:19132/udp", "19132:19132/tcp"], "25565:25565/tcp")
 	env: {
 		EULA:                 args.eula
-		MODE:                 "creative"
-		DIFFICULTY:           "peaceful"
+		MODE:                 args.mode
+		DIFFICULTY:           args.difficulty
 		ALLOW_NETHER:         "true"
 		GENERATE_STRUCTURES:  "true"
 		ENABLE_COMMAND_BLOCK: "true"
 		SPAWN_ANIMALS:        "true"
 		SPAWN_MONSTERS:       "true"
 		SPAWN_NPCS:           "true"
-		ALLOW_FLIGHT:         "TRUE"
+		ALLOW_FLIGHT:         args.allowFlight
 		VERSION:              "1.20"
+		TYPE:                 localData.type
+	}
+
+	if args.geyser {
+		env: PLUGINS: "https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot\nhttps://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot"
 	}
 	dirs: "/data": "volume://mc-data"
 	probes: [{
@@ -43,3 +58,5 @@ containers: mc: {
 }
 
 volumes: "mc-data": {}
+
+localData: type: std.ifelse(args.geyser, "PAPER", "VANILLA")
