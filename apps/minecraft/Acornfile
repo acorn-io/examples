@@ -55,6 +55,7 @@ containers: mc: {
 		initialDelaySeconds: 120
 		periodSeconds:       60
 	}]
+	memory: 2048Mi
 }
 
 volumes: "mc-data": {}
