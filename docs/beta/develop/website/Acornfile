@@ -1,0 +1,11 @@
+containers: {
+    site: {
+        build: {
+            context: "."
+        }
+        ports: publish: "1313/http"
+        dirs: {
+            "/src": "./"
+        }
+    }
+}
